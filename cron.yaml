@@ -1,0 +1,4 @@
+cron:
+- description: "daily letter job"
+  url: /api/new_letter
+  schedule: every 24 hours

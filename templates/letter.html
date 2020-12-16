@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+{% block content %}
+{% include "header.html" %}
+
+<div>
+<main>    
+  <section>
+    <header>   
+      <div class="container">
+        <div class="row">
+            <h3>The letter of the day is: {{letter}}</h3>
+            <h4>Upvotes:    Downvotes:   </h4>
+            <button>Login to vote on today's letter</button>
+            
+
+        </div>
+      </div>     
+    </header>
+  </section>
+
+</main>
+</div>
+
+{% endblock %}
