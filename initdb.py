@@ -2,6 +2,7 @@ from sqlalchemy import Column, Integer, String, create_engine, engine, Sequence,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.orm import scoped_session
+from flask_login import UserMixin
 
 
 import os
@@ -10,15 +11,14 @@ import os
 Base = declarative_base()
 
 
-class Users(Base):
+class Users(Base, UserMixin):
     __tablename__ = 'users'
     id = Column(Integer, Sequence('user_id_seq'), primary_key=True)
-    name = Column(String(50))
-    fullname = Column(String(50))
-    password = Column(String(12))
+    username = Column(String(50))
+    password = Column(String(100))
 
     def __repr__(self):
-        return "<User('%s','%s', '%s')>" % (self.name, self.fullname, self.password)
+        return "<User('%s', '%s')>" % (self.username, self.password)
 
 class Letters(Base):
     __tablename__ = 'letters'
@@ -33,12 +33,9 @@ class Letters(Base):
 
 def initdb():
     DATABASE_URL = os.environ.get("DATABASE_URL")
-    e = create_engine(
-        DATABASE_URL
-    )
+    e = create_engine(DATABASE_URL)
     Base.metadata.create_all(e)
     return e
-
 
 
 engine = initdb()
