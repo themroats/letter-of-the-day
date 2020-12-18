@@ -1,51 +1,28 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for, flash, Blueprint
+from flask import Flask, Blueprint
+from letter import main as main_blueprint
+from auth import auth as auth_blueprint
+from flask_login import LoginManager
+from initdb import Users, sess
 
 
-import random
-import string
-import logging
-import json
-import httplib2
-import requests
-import datetime
-import time
-import requests 
+
+app = Flask(__name__)
+
+login_manager = LoginManager()
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+@login_manager.user_loader
+def load_user(user_id):
+    # since the user_id is just the primary key of our user table, use it in the query for the user
+    return sess.query(Users).get(int(user_id))
+
+app.register_blueprint(main_blueprint, url_prefix='/')
+app.register_blueprint(auth_blueprint, url_prefix='/')
+
+app.secret_key = "6d97f134fc912601484a9336"
 
 
-from initdb import get_all_users, get_current_letter, set_next_letter, get_all_letters
-from flask_login import login_required, current_user
-
-
-main = Blueprint('main', __name__)
-
-
-@main.route("/")
-def index():
-    return render_template("letter.html", letter=get_current_letter().letter)
-
-@main.route("/prev")
-def show_previous_letters():
-    return str(get_all_letters())
-
-@main.route("/api/new_letter")
-def new_letter():
-    if request.headers.get("X-Appengine-Cron"):
-        generate_next_letter()
-        return "success", 200
-    else:
-        return "forbidden", 403
-
-@main.route('/profile')
-@login_required
-def profile():
-    return render_template('profile.html', name=current_user.username)
-
-def generate_next_letter():
-    previous_letter = get_current_letter().letter
-    next_letter = previous_letter
-
-    while next_letter == previous_letter:
-        r = requests.get("https://www.random.org/integers/?num=1&min=0&max=25&col=1&base=10&format=plain&rnd=new")
-        next_letter = chr(r.json() + 65)
-
-    set_next_letter(next_letter)
+if __name__ == "__main__":
+    app.debug = True
+    app.run(host="0.0.0.0", use_reloader=False)
