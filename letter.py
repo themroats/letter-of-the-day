@@ -21,16 +21,25 @@ import time
 import requests
 
 
-from initdb import get_all_users, get_current_letter, set_next_letter, get_all_letters
+from initdb import get_all_users, get_current_letter, set_next_letter, get_all_letters, vote_letter, get_letter_score
 from flask_login import login_required, current_user
 
 
 main = Blueprint("main", __name__)
 
 
-@main.route("/")
+@main.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("letter.html", letter=get_current_letter().letter)
+    if request.method == "GET":
+        letter = get_current_letter()
+        score = get_letter_score(letter.id)
+        return render_template("letter.html", letter=letter.letter, score=score)
+    else:
+        if not "change" in request.json:
+            return {"bad request", 400}
+        change = request.json.get("change")
+        vote_letter(change)
+        return redirect(url_for("main.index"))
 
 
 @main.route("/prev")

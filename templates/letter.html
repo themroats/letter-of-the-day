@@ -7,9 +7,10 @@
     
         
         <h1 class=''>The letter of the day is: {{letter}}</h1>
-        <h4>Upvotes:  <span>0</span>  Downvotes:  <span>0</span> </h4>
+        <h4>Score: {{score}} </h4>
         {% if current_user.is_authenticated %}
         <h5>Logged in as: {{current_user.username}}</h5>
+        <button id="upvote-letter-button">Upvote</button><button id="downvote-letter-button">Downvote</button>
 
         {% endif %}
         
